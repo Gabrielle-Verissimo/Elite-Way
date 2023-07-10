@@ -7,12 +7,12 @@ import lombok.Setter;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
-
+import org.springframework.hateoas.RepresentationModel;
 @Entity
 @Table(name = "STUDENT")
 @Getter
 @Setter
-public class CoordinatorModel implements Serializable {
+public class StudentModel extends RepresentationModel<StudentModel> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
