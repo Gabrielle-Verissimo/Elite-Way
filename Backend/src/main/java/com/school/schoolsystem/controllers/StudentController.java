@@ -6,6 +6,11 @@ import com.school.schoolsystem.services.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +28,14 @@ public class StudentController {
 
     @Autowired
     StudentService studentService;
-
+ //page={page}&pageSize={size}
     @GetMapping("/students")
-    public ResponseEntity<List<StudentModel>> getAllStudents() {
-        List<StudentModel> students = studentService.findAll();
+    public ResponseEntity<Page<StudentModel>> getAllStudents(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "qntElem", defaultValue = "10", required = false) int qntElem
+    ){
+        Pageable pageable = PageRequest.of(page, qntElem);
+        Page<StudentModel> students = studentService.findAll(pageable);
         if(!students.isEmpty()) {
             for(StudentModel student : students) {
                 UUID id = student.getIdStudent();
@@ -42,7 +51,9 @@ public class StudentController {
         if (student.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found.");
         }
-        student.get().add(linkTo(methodOn(StudentController.class).getAllStudents()).withRel("Students List"));
+        int page = 0;
+        int qntElem = 10;
+        student.get().add(linkTo(methodOn(StudentController.class).getAllStudents(page, qntElem)).withRel("Students List"));
         return ResponseEntity.status(HttpStatus.OK).body(student.get());
     }
     @PostMapping("/register-student")

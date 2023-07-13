@@ -4,6 +4,8 @@ import com.school.schoolsystem.models.StudentModel;
 import com.school.schoolsystem.respositories.StudentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +17,8 @@ public class StudentService {
     @Autowired
     StudentRepository studentRepository;
 
-    public List<StudentModel> findAll() {
-        return studentRepository.findAll();
+    public Page<StudentModel> findAll(Pageable pageable) {
+        return studentRepository.findAll(pageable);
     }
     public Optional<StudentModel> findById(UUID id) {
         return studentRepository.findById(id);
