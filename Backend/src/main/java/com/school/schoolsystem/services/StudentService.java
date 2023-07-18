@@ -20,8 +20,12 @@ public class StudentService {
     public Page<StudentModel> findAll(Pageable pageable) {
         return studentRepository.findAll(pageable);
     }
+
     public Optional<StudentModel> findById(UUID id) {
         return studentRepository.findById(id);
+    }
+    public Optional<StudentModel> findBySchoolEnrollment(String schoolEnrollment) {
+        return studentRepository.findBySchoolEnrollment(schoolEnrollment);
     }
     @Transactional
     public StudentModel save(StudentModel studentModel) {

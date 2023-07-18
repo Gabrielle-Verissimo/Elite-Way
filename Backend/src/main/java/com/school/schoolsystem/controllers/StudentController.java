@@ -24,6 +24,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class StudentController {
 
     @Autowired
@@ -38,16 +39,16 @@ public class StudentController {
         Page<StudentModel> students = studentService.findAll(pageable);
         if(!students.isEmpty()) {
             for(StudentModel student : students) {
-                UUID id = student.getIdStudent();
-                student.add(linkTo(methodOn(StudentController.class).getOneStudent(id)).withSelfRel());
+                String enrollment = student.getSchoolEnrollment();
+                student.add(linkTo(methodOn(StudentController.class).getOneStudent(enrollment)).withSelfRel());
             }
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(students);
     }
-    @GetMapping("/students/{id}")
-    public ResponseEntity<Object> getOneStudent(@PathVariable(value = "id") UUID id){
-        Optional<StudentModel> student = studentService.findById(id);
+    @GetMapping("/students/{enrollment}")
+    public ResponseEntity<Object> getOneStudent(@PathVariable(value = "enrollment") String enrollment){
+        Optional<StudentModel> student = studentService.findBySchoolEnrollment(enrollment);
         if (student.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found.");
         }
@@ -63,10 +64,10 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.save(studentModel));
     }
 
-    @PutMapping("/students/{id}")
-    public ResponseEntity<Object> updateStudent(@PathVariable(value = "id") UUID id,
+    @PutMapping("/students/{enrollment}")
+    public ResponseEntity<Object> updateStudent(@PathVariable(value = "enrollment") String enrollment,
                                                     @RequestBody @Valid StudentRecordDto studentRecordDto){
-        Optional<StudentModel> student = studentService.findById(id);
+        Optional<StudentModel> student = studentService.findBySchoolEnrollment(enrollment);
         if (student.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found.");
         }
@@ -74,9 +75,9 @@ public class StudentController {
         BeanUtils.copyProperties(studentRecordDto, studentModel);
         return ResponseEntity.status(HttpStatus.OK).body(studentService.save(studentModel));
     }
-    @DeleteMapping("/students/{id}")
-    public ResponseEntity<Object> deleteStudent(@PathVariable(value = "id") UUID id){
-        Optional<StudentModel> student = studentService.findById(id);
+    @DeleteMapping("/students/{enrollment}")
+    public ResponseEntity<Object> deleteStudent(@PathVariable(value = "enrollment") String enrollment){
+        Optional<StudentModel> student = studentService.findBySchoolEnrollment(enrollment);
         if (student.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found.");
         }
@@ -84,4 +85,13 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully.");
     }
 
+//    @DeleteMapping("/students/{enrollment}")
+//    public ResponseEntity<Object> deleteStudent(@PathVariable(value = "enrollment") UUID enrollment){
+//        Optional<StudentModel> student = studentService.findById(enrollment);
+//        if (student.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found.");
+//        }
+//        studentService.delete(student.get());
+//        return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully.");
+//    }
 }
